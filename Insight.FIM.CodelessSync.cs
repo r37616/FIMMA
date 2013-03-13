@@ -94,14 +94,15 @@ namespace Mms_Metaverse
                 string attrib = codeBreaks[i].Substring(0, codeBreaks[i].IndexOf("\"]"));
                 if (!paramAttribs.Contains(attrib))
                 {
+                    //TODO:  is this the best way to handle the isPresent check??
                     paramAttribs.Add(attrib);
                     if (source == "csentry")
                     {
-                        paramValues.Add(csentry[attrib].Value);
+                        paramValues.Add(csentry[attrib].IsPresent ? csentry[attrib].Value : "");
                     }
                     else
                     {
-                        paramValues.Add(mventry[attrib].Value);
+                        paramValues.Add(mventry[attrib].IsPresent ? mventry[attrib].Value : "");
                     }
                 }
 			}
@@ -204,6 +205,11 @@ namespace Mms_Metaverse
 
                 //use flow rule name as code to run
                 var retVal = wwScript.ExecuteCode(code, paramValues.ToArray());
+
+                if (wwScript.bError)
+                {
+                    throw new Exception("Error from wwScript - " + wwScript.cErrorMsg);
+                }
 
                 AttributeType type;
                 bool isMultiValued = false;
@@ -346,11 +352,6 @@ namespace Mms_Metaverse
                     default:
                         break;
                 }                
-
-                if (wwScript.bError)
-                {
-                    throw new Exception("Error from wwScript - " + wwScript.cErrorMsg);
-                }
 
                 //log.Debug("Custom code execution complete.  Return value: " + CodeReturnValue);
             }
